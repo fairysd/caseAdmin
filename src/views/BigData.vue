@@ -14,58 +14,28 @@
       <el-col :span="24" class="data"> 
         <h4>案例分析</h4>
        <ul>
-         <li>
-           <img src="../assets/images/bigdata.png" alt="">
-           <p>法律法规</p>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
+         <li v-for="item in caseA" :key="item.id" :params="item.params" :url="item.url">
+           <img :src="item.image" alt="">
+           <p v-text="item.name"></p>
+         </li>       
         </ul>
       </el-col>
       <el-col :span="24" class="data"> 
         <h4>法律关系</h4>
        <ul>
-         <li>
-           <img src="../assets/images/bigdata.png" alt="">
-           <p>法律法规</p>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
+         <li v-for="item in caseB" :key="item.id" :params="item.params" :url="item.url">
+           <img :src="item.image" alt="">
+           <p v-text="item.name"></p>
+         </li> 
         </ul>
       </el-col>
       <el-col :span="24" class="data"> 
         <h4>法律维护</h4>
        <ul>
-         <li>
-           <img src="../assets/images/bigdata.png" alt="">
-           <p>法律法规</p>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
-         <li>
-         </li>
+       <li v-for="item in caseC" :key="item.id" :params="item.params" :url="item.url">
+           <img :src="item.image" alt="">
+           <p v-text="item.name"></p>
+         </li> 
         </ul>
       </el-col>
     </el-row>
@@ -79,10 +49,39 @@ export default {
   components: {},
   data() {
     return {
-      searchValue: ""
+      searchValue: "",
+      caseA:[],
+      caseB:[],
+      caseC:[]
     };
   },
   mounted(){
+    let baseUrl = this.GLOBAL.baseUrl;
+     this.$http
+      .get(baseUrl + "/bigDataIconInfo", {})
+      .then(({ data }) => {
+        var caseAObject = data.data.A0.icons;
+        var caseBObject = data.data.A1.icons;
+        var caseCObject = data.data.A2.icons;
+        for (const key in caseAObject) {
+          if (caseAObject.hasOwnProperty(key)) {
+            const element = caseAObject[key];
+            this.caseA.push(element)
+          }
+        }
+        for (const key in caseBObject) {
+          if (caseBObject.hasOwnProperty(key)) {
+            const element = caseBObject[key];
+            this.caseB.push(element)
+          }
+        }
+        for (const key in caseCObject) {
+          if (caseCObject.hasOwnProperty(key)) {
+            const element = caseCObject[key];
+            this.caseC.push(element)
+          }
+        }
+      });
     this.openNotice();
   },
   methods:{

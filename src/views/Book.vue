@@ -13,18 +13,10 @@
     <el-row class="content-head">      
       <el-col :span="18"  class="list"> 
         <ul>
-          <li>
-            <img src="../assets/images/book.png" alt="">
-            <p>江苏省高级人民法院</p>
+          <li v-for="item in bookList" :key="item.ids">
+            <img :src="item.imageUrl" alt="">
+            <p v-text="item.name"></p>
           </li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
         </ul>
       </el-col>
       <el-col :span="6"  class="list-history"> 
@@ -50,8 +42,22 @@ export default {
   },
   data(){
     return{
-      searchValue:""
+      searchValue:"",
+      bookList:[]
     }
+  },
+  mounted(){
+    let baseUrl = this.GLOBAL.baseUrl;
+     this.$http
+      .get(baseUrl + "/order/getAddressBookCourt", {
+        params: {
+         code:"3201",
+         status:"1"
+        }
+      })
+      .then(({ data }) => {
+        this.bookList = data.data;
+      });
   }
 };
 </script>

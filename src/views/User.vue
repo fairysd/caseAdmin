@@ -7,41 +7,41 @@
      <el-row class="user-info">    
       <el-col :span="12" class="info-form">      
         <div class="inline-row">
-          <label for="">姓名：</label><input type="text">
+          <label for="">姓名：</label><input type="text" :disabled="isEdit" v-model="userInfo.lawyerName">
         </div>
         <div class="inline-row">
            <label for="">性别：</label>
           <div class="sexy">
-            <el-radio v-model="radio" label="1">男</el-radio>
-          <el-radio v-model="radio" label="2">女</el-radio>
+            <el-radio :disabled="isEdit" v-model="userInfo.sex" label="0">男</el-radio>
+          <el-radio :disabled="isEdit" v-model="userInfo.sex" label="1">女</el-radio>
           </div>          
         </div>         
         <div class="inline-row">
-          <label for="">生日：</label><input type="text">
+          <label for="">生日：</label><input type="text" :disabled="isEdit" v-model="userInfo.birth">
         </div>
         <div class="inline-row">
-          <label for="">手机：</label><input type="text">
+          <label for="">手机：</label><input type="text" :disabled="isEdit" v-model="userInfo.tell">
         </div>
         <div class="inline-row">
-          <label for="">固话：</label><input type="text">
+          <label for="">固话：</label><input type="text" :disabled="isEdit" v-model="userInfo.fixTell">
         </div>
         <div class="inline-row">
-          <label for="">邮箱：</label><input type="text">
+          <label for="">邮箱：</label><input type="text" :disabled="isEdit" v-model="userInfo.email">
         </div>
         <div class="inline-row">
-          <label for="">职业律所：</label><input type="text">
+          <label for="">职业律所：</label><input type="text" :disabled="isEdit" v-model="userInfo.officeName">
         </div>
         <div class="inline-row">
-          <label for="">执业证号：</label><input type="text">
+          <label for="">执业证号：</label><input type="text" :disabled="isEdit" v-model="userInfo.workCardNumber">
         </div>
         <div class="inline-row">
-          <label for="">地址：</label><input type="text">
+          <label for="">地址：</label><input type="text" :disabled="isEdit" v-model="userInfo.detailAddress">
         </div>
         <div class="inline-row">
-          <label for="">学历：</label><input type="text">
+          <label for="">学历：</label><input type="text" :disabled="isEdit" v-model="userInfo.education">
         </div>
         <div class="inline-row">
-          <label for="">毕业院校：</label><input type="text">
+          <label for="">毕业院校：</label><input type="text" :disabled="isEdit" v-model="userInfo.school">
         </div>
       </el-col>
       <el-col :span="12" class="info-pic">  
@@ -78,8 +78,8 @@
     </el-row>
     <el-row class="body-footer">      
       <el-col :span="24" >    
-        <button>编辑</button>
-        <button>保存</button>
+        <button @click="setEdit">编辑</button>
+        <button :disabled="isEdit" @click="editUserInfo">保存</button>
       </el-col>
     </el-row>
   </div>
@@ -92,8 +92,10 @@ export default {
   components: {},
   data() {
     return {
-      radio: "1",
+      radio: "0",
       imageUrl: "",
+      userInfo:{},
+      isEdit:true,
       fileList2: [
         {
           name: "food.jpeg",
@@ -103,27 +105,101 @@ export default {
       ]
     };
   },
+  mounted(){
+    let baseUrl = this.GLOBAL.baseUrl;
+     this.$http
+      .get(baseUrl + "/findLawyerInfoByRegisterId", {
+        params: {
+          registerId: "U1525405578581qbBSE"
+        }
+      })
+      .then(({ data }) => {
+        let info = data.data;
+        this.userInfo  = info;
+      });
+  },
   methods: {
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
+      let baseUrl = this.GLOBAL.baseUrl;
+      let that = this;
+      const isJPG = file.type === "image/jpeg"||"image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;     
       if (!isJPG) {
-        this.$message.error("上传头像图片只能是 JPG 格式!");
+        this.$message.error("上传头像图片只能是 JPG/PNG 格式!");
+        return false
       }
       if (!isLt2M) {
         this.$message.error("上传头像图片大小不能超过 2MB!");
+        return false;
       }
-      return isJPG && isLt2M;
+       const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = function () { // 图片转base64完成后返回reader对象        
+        that.$http
+          .post(
+            baseUrl + "/order/UpLoadFile",
+            {
+              filePath:reader.result,
+              userid: "U1525405578581qbBSE"
+            }
+          )
+          .then(({ data }) => {
+            console.log(data)
+            // if(data.message =="成功"){
+            //   this.isEdit = true;//
+            //   this.$message({
+            //       message: '保存成功',
+            //       type: 'success'
+            //     });
+            // }
+            
+          });
+      }
+      return false;
     },
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+     // console.log(file, fileList);
     },
     handlePreview(file) {
-      console.log(file);
+     // console.log(file);
+    },
+    editUserInfo(){
+      let baseUrl = this.GLOBAL.baseUrl;
+    this.$http
+      .post(
+        baseUrl + "/order/FindOrderList",
+        this.qs.stringify({
+          lawyerName: this.userInfo.lawyerName,
+          tell: this.userInfo.tell,
+          fixTell:this.userInfo.fixTell,
+          email:this.userInfo.email,
+          lawyerOfficeId:this.userInfo.lawyerOfficeId,
+          workCardNumber:this.userInfo.workCardNumber,
+          detailAddress:this.userInfo.detailAddress,
+          school:this.userInfo.school,
+          birth:this.userInfo.birth,
+          sex:this.userInfo.sex,
+          lawyerOid:this.userInfo.lawyerOid,
+          education:this.userInfo.education,          
+          userId: "U1525405578581qbBSE",
+          token:"cfa53bd07ab509a7f70a1f46380154a237f2045a"
+        })
+      )
+      .then(({ data }) => {
+        if(data.message =="成功"){
+          this.isEdit = true;//
+           this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
+        }
+      });
+    },
+    setEdit(){
+      this.isEdit = false;
     }
   }
 };
@@ -140,6 +216,7 @@ export default {
     text-align: center;
     padding-top: 4%;
      button {
+        cursor: pointer;
         width:10%;
         height: 50px;
         border: none;
@@ -163,8 +240,9 @@ export default {
     margin-top: 85px;
     margin-bottom: 50px;
     input {
-      background-color: #f7f7fa;
+      // background-color: #fff;
       border: 1px solid #e7e7e9;
+      padding-left: 10px;
       border-radius: 5px;
     }
     .inline-row {

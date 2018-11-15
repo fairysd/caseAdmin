@@ -4,10 +4,15 @@ import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
 import router from './router'
 import echarts from 'echarts'
+import axios from 'axios'
+import Qs from 'qs'
+import global_ from './components/Global'
 
+Vue.prototype.$http= axios
+Vue.prototype.qs= Qs
 Vue.use(ElementUI);
 Vue.config.productionTip = false
-
+Vue.prototype.GLOBAL = global_
 Vue.prototype.$echarts = echarts
 
 new Vue({

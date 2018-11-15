@@ -32,7 +32,17 @@
           </el-menu>
 
     </el-col>
-     <el-col :span="6"><div class="">这里是个人信息</div></el-col>
+     <el-col :span="6" class="head-user-info">
+       <div class="">
+         <img src="../assets/icons/lawyer.png" alt="">
+         <span class="content" v-text="name">赵子耀</span>
+         <span class="mark">律师</span>
+         <img src="../assets/icons/exp.png" alt="">
+         <span class="content">执业经验</span>
+         <span class="mark" v-text="exp+'年'"></span>
+         <img class="head-img" :src="headImg" alt="">
+       </div>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -43,6 +53,9 @@ export default {
   data() {
     return {
       activeIndex: "/case/caseManage",
+      name:"",
+      exp:"",
+      headImg:"",
       icons: {
         icon1: false,
         icon1active: true,
@@ -83,6 +96,21 @@ export default {
         }
       ]
     };
+  },
+  mounted(){
+    let baseUrl = this.GLOBAL.baseUrl;
+     this.$http
+      .get(baseUrl + "/findLawyerInfoByRegisterId", {
+        params: {
+          registerId: "U1525405578581qbBSE"
+        }
+      })
+      .then(({ data }) => {
+        let info = data.data;
+        this.name = info.lawyerName;
+        this.exp = info.workAge;
+        this.headImg = info.imageUrl;
+      });
   },
   methods: {
     handleSelect() {},
@@ -220,6 +248,26 @@ export default {
         vertical-align: top;
         line-height: 37px;
       }
+    }
+  }
+  .head-user-info{
+    img, span{
+      vertical-align: middle; 
+      padding: 0 3px;
+    }
+    .head-img{
+      width: 100px;
+      height: 100px;
+      border-radius: 50px;
+    }
+    .content{
+      color: #000;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .mark{
+      color: #626262;
+      font-size: 16px;
     }
   }
 }

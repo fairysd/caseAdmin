@@ -1,37 +1,46 @@
 <template>
-  <div class="login">
-   <div id="background">
-        <img src="css/images/index-logo-1.jpg">
-        <div class="indexLogo index-logo" style="height:0px;">
-            <!-- 问案及按钮等 -->
-            <div class="indexLogoWenan">
-                <div>
-                    <button class="btn btnSubmit" data-toggle="modal">注册</button>
-                    <button class="btn btnLogin" data-toggle="modal" data-target=".bs-example-modal-sm">登录</button>
-                </div>
-            </div>
-            <!-- 模态框 -->
-            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog modal-sm" role="document">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <p>律师登录</p>
-
-                            <div class="alert-box" >
-
-                            </div>
-                            <div class="m-label" >
-                                <div>手机号: <input id="inputs" type="text" placeholder="输入注册的手机号码"/></div>
-                                <div><button  type="button"  class="btn btn-info btn-info-local" onclick="telllogin()">登录</button></div>
-                            </div>
-
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div id="login">
+    <el-row class="login">
+      <el-col :span="24" class="imgBox">
+        <img src="../assets/images/loginBg.jpg" alt="">
+      </el-col>
+      <el-col :span="24" class="btn-login">
+        <div class="btn-box">
+           <button class="btn-reg">注册</button>
+          <button class="btn-log"  @click="dialogVisible = true">登陆</button>
+        </div>       
+      </el-col>
+    </el-row>
+    <el-row class="login-footer">
+      <el-col :span="10" :offset="2">
+        <el-col :span="8" :offset="4">
+          <img src="../assets/images/wxapp.jpg" alt="">
+          <p class="qrdes">关注问案</p>
+        </el-col>
+        <el-col :span="8" :offset="2">
+          <img src="../assets/images/wxpub.jpg" alt="">
+          <p class="qrdes">加入icase360</p>
+        </el-col>
+      </el-col>
+      <el-col :span="10" class="text-info">
+        <p>© 苏州法智科技有限公司</p>
+        <p>邮箱：  icase360@163.com&nbsp;&nbsp;&nbsp;&nbsp;地址：  江苏苏州市十梓街338号</p>
+        <p><a href="http://www.miitbeian.gov.cn">苏ICP备17060514号-1</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=32050802010594">苏公网安备32050802010594号</a></p>
+      </el-col>
+    </el-row>
+    <el-dialog
+      title="登陆"
+      width="30%"
+      :visible.sync="dialogVisible"
+      class="login-dia">
+      <el-row class="new-form">
+        <el-col :span="8"><label for="">手机号：</label><input type="text" v-model="tellPhone"></el-col>    
+        </el-row>    
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="login">确 定</el-button>
+      </span>
+       
+    </el-dialog>
   </div>
 </template>
 
@@ -39,116 +48,82 @@
 // @ is an alias to /src
 export default {
   name: "login",
-  components: {}
-};
-var ServerAddress = "http://icase360.com/api";
-function telllogin() {
-  var tell = $("#inputs").val();
-  var $alerttext = "";
-  if (tell == "") {
-    $(".alert-box").html(
-      ` <div class="alert alert-warning" role="alert">请输入手机号</div>`
-    );
-
-    setTimeout(function() {
-      $(".alert-box").html("");
-    }, 2000);
-    return;
-  }
-
-  $.ajax({
-    type: "GET",
-    url: ServerAddress + "/findLawyer",
-    data: {
-      tell: tell
-    },
-    success: function(data) {
-      console.log(data);
-      if (data.data.length == 0) {
-        $(".alert-box").html(
-          ` <div class="alert alert-warning" role="alert">手机号码未注册</div>`
-        );
-        setTimeout(function() {
-          $(".alert-box").html("");
-        }, 2000);
-
-        return;
-      }
-      var userid = data.data[0].registerId;
-      $.cookie("LuserId", userid);
-      $.ajax({
-        type: "POST",
-        url: ServerAddress + "/order/CheckLogin",
-        data: {
-          userid: $.cookie("LuserId"),
-          islogin: true
-        },
-        success: function(data) {
-          if (data.code != 0) {
-            $(".alert-box").html(
-              ` <div class="alert alert-warning" role="alert">用户未激活</div>`
-            );
-            setTimeout(function() {
-              $(".alert-box").html("");
-            }, 2000);
-
-            return;
-          }
-          $.cookie("Ltoken", data.token);
-          window.top.location.href = "html/caseAdmin.html";
-        }
-      });
+  components: {},
+  data(){
+    return {
+      dialogVisible:false,
+      tellPhone:"13801582831"
     }
-  });
-}
+  },
+  methods:{
+    login(){
+      this.dialogVisible = false;
+    }
+  }
+};
 </script>
-<style lang="less" scoped>
-.indexLogo .indexLogoWenan {
-  width: auto;
-}
-.modal-body {
-  position: absolute;
-  padding: 0;
-  top: 15px;
-}
-.icp-icon {
-//   background-image: url(css/images/xxxxx.png);
-  width: 24px;
-  height: 24px;
-  display: inline-block;
-  background-position: 274px 108px;
-}
-
-.modal-content {
-  height: 360px;
-  width: 300px;
-  margin: 30px auto;
-}
-
-.modal-content p {
-  margin: 0;
-  margin-bottom: 10px;
-  font-size: 20px;
-}
-.modal-content .m-label {
-  position: relative;
-  top: -10px;
-}
-.modal-content .m-label:nth-child(1) {
-  width: 298px;
-}
-
-.modal-content .m-label input {
-  width: 180px;
-  height: 32px;
-  margin-left: 10px;
-  margin-bottom: 10px;
-}
-.modal-content .m-label .btn-info-local {
-  width: 298px;
-}
-.alert-box {
-  height: 60px;
-}
+<style lang="less">
+  #login{
+    .login{
+      width: 100%;
+      .imgBox{
+        background-color: #212121;
+      }
+      img{
+        width: 100%;
+      }
+      .btn-login{
+        position: relative;
+        top: -220px;
+        height: 0;
+        .btn-box{
+          text-align: center;
+          button{
+                padding: 6px 76px;
+                color: #000;
+                font-size: 20px;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+          }
+          .btn-reg{
+                background-color: #fff;
+          }
+          .btn-log{
+                background-color: #20a0ff;
+                 color: #fff;
+                 margin-left: 30px;
+          }
+        }
+      }
+    }
+    .login-footer{
+      padding-top: 30px;
+      padding-bottom: 30px;
+      background-color: #212121;
+      .qrdes{
+        text-align: center;
+      }
+      .text-info{
+        padding-top: 30px;
+      }
+      img{
+        width: 100%;
+        height: 206px;
+      }
+      p{
+        color: #fff;
+        a{
+          color: #fff;
+          text-decoration: none;
+        }
+      }
+    }
+    .login-dia{ 
+      .el-dialog__footer{
+        text-align: center;
+      }
+    }
+  }
 </style>
 

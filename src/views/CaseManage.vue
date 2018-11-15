@@ -32,27 +32,13 @@
     </el-row>
      <el-row  class="content-body">
       <el-col :span="20" :offset="2">
-          <ul class="content-body">
-            <li class="first">邓念念</li>
-            <li class="second">非法吸收公共存款罪</li>
-            <li class="third">秦淮区人民法院</li>
-            <li class="fouth"><span>签约</span></li>
-            <li class="fifth">2018-10-22</li>
-          </ul>
-          <ul class="content-body">
-            <li class="first">邓念念</li>
-            <li class="second">非法吸收公共存款罪</li>
-            <li class="third">秦淮区人民法院</li>
-            <li class="fouth"></li>
-            <li class="fifth">2018-10-22</li>
-          </ul>
-          <ul class="content-body">
-            <li class="first">邓念念</li>
-            <li class="second">非法吸收公共存款罪</li>
-            <li class="third">秦淮区人民法院</li>
-            <li class="fouth"></li>
-            <li class="fifth">2018-10-22</li>
-          </ul>
+          <ul v-for="item in caseList" :key="item.id" class="content-body">
+            <li class="first" v-text="item.bailorName"></li>
+            <li class="second" v-text="item.reasonName"></li>
+            <li class="third" v-text="item.courtName"></li>
+            <li class="fouth" ><span v-text="item.orderState">签约</span></li>
+            <li class="fifth" v-text="item.createTime">2018-10-22</li>
+          </ul>        
           <el-pagination
             layout="prev, pager, next"
             :total="50">
@@ -112,29 +98,63 @@ export default {
   data() {
     return {
       searchValue: "",
-      dialogVisible: false
+      dialogVisible: false,
+      caseList: [],
+      chartInfo: {}
     };
   },
   mounted() {
-    let lineChart = this.$echarts.init(document.getElementById("caseLine"));
-    let option_line = {
-      xAxis: {
-        type: "category",
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-      },
-      yAxis: {
-        type: "value"
-      },
-      series: [
-        {
-          data: [820, 932, 901, 934, 1290, 1330, 1320],
-          type: "line"
-        }
-      ]
-    };
-    lineChart.setOption(option_line);
+    let baseUrl = this.GLOBAL.baseUrl;
+    this.$http
+      .post(
+        baseUrl + "/order/FindOrderList",
+        this.qs.stringify({
+          orderState: 0,
+          token: "df300d22e5318d076b29144f7193278ce0ef5b76",
+          userId: "U1525405578581qbBSE",
+          lawyerId: "U1525405578581qbBSE",
+          page: 0,
+          searchMode: "union"
+        })
+      )
+      .then(({ data }) => {
+        this.caseList = data.data;
+        this.caseList.forEach(function(value, index) {
+          value.createTime = value.createTime.split(" ")[0];
+        });
+      });
     //
-    let pieChart = this.$echarts.init(document.getElementById("casePie"));
+    this.$http
+      .get(baseUrl + "/findLawyerInfoByRegisterId", {
+        params: {
+          registerId: "U1525405578581qbBSE"
+        }
+      })
+      .then(({ data }) => {
+        let info = data.data;
+        this.chartInfo = info.chartInfo;
+      })
+      .then(() => {
+        let lineChart = this.$echarts.init(document.getElementById("caseLine"));
+        let option_line = {
+          xAxis: {
+            type: "category",
+            data: this.chartInfo.monthCase[0]
+          },
+          yAxis: {
+            type: "value"
+          },
+          series: [
+            {
+              data: this.chartInfo.monthCase[1],
+              type: "line"
+            }
+          ]
+        };
+        lineChart.setOption(option_line);
+      })
+      .then(() => {
+        let pieChart = this.$echarts.init(document.getElementById("casePie"));
     let option_pie = {
       tooltip: {
         trigger: "item",
@@ -143,18 +163,7 @@ export default {
       legend: {
         orient: "vertical",
         x: "left",
-        data: [
-          "直达",
-          "营销广告",
-          "搜索引擎",
-          "邮件营销",
-          "联盟广告",
-          "视频广告",
-          "百度",
-          "谷歌",
-          "必应",
-          "其他"
-        ]
+        data:this.chartInfo.lawyerAbility[0]
       },
       series: [
         {
@@ -180,6 +189,7 @@ export default {
           radius: ["40%", "55%"],
           label: {
             normal: {
+              show:false,
               formatter: "{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ",
               backgroundColor: "#eee",
               borderColor: "#aaa",
@@ -222,20 +232,16 @@ export default {
               }
             }
           },
-          data: [
-            { value: 335, name: "直达" },
-            { value: 310, name: "邮件营销" },
-            { value: 234, name: "联盟广告" },
-            { value: 135, name: "视频广告" },
-            { value: 1048, name: "百度" },
-            { value: 251, name: "谷歌" },
-            { value: 147, name: "必应" },
-            { value: 102, name: "其他" }
-          ]
+          data: this.chartInfo.lawyerAbility[2]
         }
       ]
     };
     pieChart.setOption(option_pie);
+      });
+    //
+
+    //
+   
   },
   methods: {}
 };
@@ -416,22 +422,22 @@ export default {
         color: red;
       }
     }
-    .from3{    
-      .divider{
+    .from3 {
+      .divider {
         display: inline-block;
         width: 7%;
         height: 0;
-      }  
-      input{
+      }
+      input {
         display: inline-block;
         width: 23%;
         margin-right: 10px;
       }
-      label{
+      label {
         vertical-align: top;
       }
       button {
-        width:10%;
+        width: 10%;
         height: 50px;
         border: none;
         border-radius: 5px;
@@ -439,29 +445,34 @@ export default {
         vertical-align: top;
         color: #fff;
         font-size: 24px;
-      background: linear-gradient(
-        to right,
-        rgb(40, 217, 206),
-        rgb(51, 110, 206)
-      );
+        background: linear-gradient(
+          to right,
+          rgb(40, 217, 206),
+          rgb(51, 110, 206)
+        );
       }
       padding-right: 0;
     }
-    .from4,.from5{
-      span{
-        width:10px;
+    .from4,
+    .from5 {
+      span {
+        width: 10px;
         display: inline-block;
       }
     }
-    .el-dialog__footer{
+    .el-dialog__footer {
       text-align: center;
       padding-bottom: 70px;
     }
-    .dialog-footer{
+    .dialog-footer {
       text-align: center;
-      button{
+      button {
         width: 40%;
-         background: linear-gradient(to right, rgb(40, 217, 206), rgb(51, 110, 206));
+        background: linear-gradient(
+          to right,
+          rgb(40, 217, 206),
+          rgb(51, 110, 206)
+        );
       }
     }
   }

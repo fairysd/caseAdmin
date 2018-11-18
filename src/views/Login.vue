@@ -49,81 +49,110 @@
 export default {
   name: "login",
   components: {},
-  data(){
+  data() {
     return {
-      dialogVisible:false,
-      tellPhone:"13801582831"
-    }
+      dialogVisible: false,
+      tellPhone: "13801582831"
+    };
   },
-  methods:{
-    login(){
+  methods: {
+    login() {
+      let baseUrl = this.GLOBAL.baseUrl;
+      let userPhone = this.tellPhone;
       this.dialogVisible = false;
+      this.$http
+        .get(baseUrl + "/findLawyer", {
+          params: {
+            tell: userPhone
+          }
+        })
+        .then(({ data }) => {
+          if (data.message == "成功") {
+            let user = data.data[0];
+            let userID = user.registerId;
+            this.$http
+              .post(
+                baseUrl + "/order/CheckLogin",
+                this.qs.stringify({
+                 userid:userID,
+                 islogin:true
+                })
+              )
+              .then(({ data }) => {
+                if (data.message == "成功") {
+                  this.common.setCookie("userID",userID);
+                  this.common.setCookie("token",data.token);
+                  this.$router.push({ name: "caseManage"});
+                }
+              });
+          }
+        });
     }
   }
 };
 </script>
 <style lang="less">
-  #login{
-    .login{
-      width: 100%;
-      .imgBox{
-        background-color: #212121;
-      }
-      img{
-        width: 100%;
-      }
-      .btn-login{
-        position: relative;
-        top: -220px;
-        height: 0;
-        .btn-box{
-          text-align: center;
-          button{
-                padding: 6px 76px;
-                color: #000;
-                font-size: 20px;
-                border: none;
-                border-radius: 10px;
-                cursor: pointer;
-          }
-          .btn-reg{
-                background-color: #fff;
-          }
-          .btn-log{
-                background-color: #20a0ff;
-                 color: #fff;
-                 margin-left: 30px;
-          }
-        }
-      }
-    }
-    .login-footer{
-      padding-top: 30px;
-      padding-bottom: 30px;
+#login {
+  .login {
+    width: 100%;
+    .imgBox {
       background-color: #212121;
-      .qrdes{
-        text-align: center;
-      }
-      .text-info{
-        padding-top: 30px;
-      }
-      img{
-        width: 100%;
-        height: 206px;
-      }
-      p{
-        color: #fff;
-        a{
-          color: #fff;
-          text-decoration: none;
-        }
-      }
     }
-    .login-dia{ 
-      .el-dialog__footer{
+    img {
+      width: 100%;
+    }
+    .btn-login {
+      position: relative;
+      top: -220px;
+      height: 0;
+      .btn-box {
         text-align: center;
+        button {
+          padding: 6px 76px;
+          color: #000;
+          font-size: 20px;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+        }
+        .btn-reg {
+          background-color: #fff;
+        }
+        .btn-log {
+          background-color: #20a0ff;
+          color: #fff;
+          margin-left: 30px;
+        }
       }
     }
   }
+  .login-footer {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background-color: #212121;
+    .qrdes {
+      text-align: center;
+    }
+    .text-info {
+      padding-top: 30px;
+    }
+    img {
+      width: 100%;
+      height: 206px;
+    }
+    p {
+      color: #fff;
+      a {
+        color: #fff;
+        text-decoration: none;
+      }
+    }
+  }
+  .login-dia {
+    .el-dialog__footer {
+      text-align: center;
+    }
+  }
+}
 </style>
 

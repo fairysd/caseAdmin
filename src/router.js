@@ -24,22 +24,27 @@ export default new Router({
         },
         {
           path:'caseManage',
+          name:'caseManage',
           component:CaseManage
         },
         {
           path:'office',
+          name:'office',
           component:()=> import(/* webpackChunkName: "office" */ './views/Office.vue')
         },
         {
           path:'bigData',
+          name:'bigData',
           component:()=> import(/* webpackChunkName: "bigData" */ './views/BigData.vue')
         },
         {
           path:'book',
+          name:'book',
           component:()=> import(/* webpackChunkName: "book" */ './views/Book.vue')
         },
         {
           path:'user',
+          name:'user',
           component:()=> import(/* webpackChunkName: "book" */ './views/User.vue')
         }
       ]

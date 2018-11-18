@@ -99,10 +99,11 @@ export default {
   },
   mounted(){
     let baseUrl = this.GLOBAL.baseUrl;
+    let userID = this.common.getCookie("userID")
      this.$http
       .get(baseUrl + "/findLawyerInfoByRegisterId", {
         params: {
-          registerId: "U1525405578581qbBSE"
+          registerId: userID
         }
       })
       .then(({ data }) => {

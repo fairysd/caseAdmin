@@ -53,8 +53,8 @@
               action=""
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload">
-              <img v-if="imageUrl" :src="imageUrl" class="avatar">
+              :before-upload="beforeAvatarUploadForHead">
+              <img v-if="imageUrlHead" :src="imageUrlHead" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </el-col>
@@ -67,8 +67,8 @@
               action=""
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload">
-              <img v-if="imageUrl" :src="imageUrl" class="avatar">
+              :before-upload="beforeAvatarUploadForCert">
+              <img v-if="imageUrlCert" :src="imageUrlCert" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
               
@@ -93,9 +93,10 @@ export default {
   data() {
     return {
       radio: "0",
-      imageUrl: "",
-      userInfo:{},
-      isEdit:true,
+      imageUrlHead: "",
+      imageUrlCert: "",
+      userInfo: {},
+      isEdit: true,
       fileList2: [
         {
           name: "food.jpeg",
@@ -105,9 +106,9 @@ export default {
       ]
     };
   },
-  mounted(){
+  mounted() {
     let baseUrl = this.GLOBAL.baseUrl;
-     this.$http
+    this.$http
       .get(baseUrl + "/findLawyerInfoByRegisterId", {
         params: {
           registerId: "U1525405578581qbBSE"
@@ -115,90 +116,116 @@ export default {
       })
       .then(({ data }) => {
         let info = data.data;
-        this.userInfo  = info;
+        this.userInfo = info;
       });
   },
   methods: {
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUploadForHead(file) {
       let baseUrl = this.GLOBAL.baseUrl;
       let that = this;
-      const isJPG = file.type === "image/jpeg"||"image/png";
-      const isLt2M = file.size / 1024 / 1024 < 2;     
+      let userID = this.common.getCookie("userID");
+      const isJPG = file.type === "image/jpeg" || "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
       if (!isJPG) {
         this.$message.error("上传头像图片只能是 JPG/PNG 格式!");
-        return false
+        return false;
       }
       if (!isLt2M) {
         this.$message.error("上传头像图片大小不能超过 2MB!");
         return false;
       }
-       const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = function () { // 图片转base64完成后返回reader对象        
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function() {
+        // 图片转base64完成后返回reader对象
         that.$http
-          .post(
-            baseUrl + "/order/UpLoadFile",
-            {
-              filePath:reader.result,
-              userid: "U1525405578581qbBSE"
-            }
-          )
+          .post(baseUrl + "/order/UpLoadBase64", {
+            name: file.name,
+            data: reader.result,
+            path: "src/" + userID,
+            createUser: userID
+          })
           .then(({ data }) => {
-            console.log(data)
-            // if(data.message =="成功"){
-            //   this.isEdit = true;//
-            //   this.$message({
-            //       message: '保存成功',
-            //       type: 'success'
-            //     });
-            // }
-            
+            let picInfo = data.data;
+            that.imageUrlHead = picInfo.staticUrl;
           });
+      };
+      return false;
+    },
+    beforeAvatarUploadForCert(file) {
+      let baseUrl = this.GLOBAL.baseUrl;
+      let that = this;
+      let userID = this.common.getCookie("userID");
+      const isJPG = file.type === "image/jpeg" || "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG/PNG 格式!");
+        return false;
       }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+        return false;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function() {
+        // 图片转base64完成后返回reader对象
+        that.$http
+          .post(baseUrl + "/order/UpLoadBase64", {
+            name: file.name,
+            data: reader.result,
+            path: "src/" + userID,
+            createUser: userID
+          })
+          .then(({ data }) => {
+            let picInfo = data.data;
+            that.imageUrlCert = picInfo.staticUrl;
+          });
+      };
       return false;
     },
     handleRemove(file, fileList) {
-     // console.log(file, fileList);
+      // console.log(file, fileList);
     },
     handlePreview(file) {
-     // console.log(file);
+      // console.log(file);
     },
-    editUserInfo(){
+    editUserInfo() {
       let baseUrl = this.GLOBAL.baseUrl;
-    this.$http
-      .post(
-        baseUrl + "/order/FindOrderList",
-        this.qs.stringify({
-          lawyerName: this.userInfo.lawyerName,
-          tell: this.userInfo.tell,
-          fixTell:this.userInfo.fixTell,
-          email:this.userInfo.email,
-          lawyerOfficeId:this.userInfo.lawyerOfficeId,
-          workCardNumber:this.userInfo.workCardNumber,
-          detailAddress:this.userInfo.detailAddress,
-          school:this.userInfo.school,
-          birth:this.userInfo.birth,
-          sex:this.userInfo.sex,
-          lawyerOid:this.userInfo.lawyerOid,
-          education:this.userInfo.education,          
-          userId: "U1525405578581qbBSE",
-          token:"cfa53bd07ab509a7f70a1f46380154a237f2045a"
-        })
-      )
-      .then(({ data }) => {
-        if(data.message =="成功"){
-          this.isEdit = true;//
-           this.$message({
-              message: '保存成功',
-              type: 'success'
+      this.$http
+        .post(
+          baseUrl + "/order/FindOrderList",
+          this.qs.stringify({
+            lawyerName: this.userInfo.lawyerName,
+            tell: this.userInfo.tell,
+            fixTell: this.userInfo.fixTell,
+            email: this.userInfo.email,
+            lawyerOfficeId: this.userInfo.lawyerOfficeId,
+            workCardNumber: this.userInfo.workCardNumber,
+            detailAddress: this.userInfo.detailAddress,
+            school: this.userInfo.school,
+            birth: this.userInfo.birth,
+            sex: this.userInfo.sex,
+            lawyerOid: this.userInfo.lawyerOid,
+            education: this.userInfo.education,
+            userId: "U1525405578581qbBSE",
+            token: "cfa53bd07ab509a7f70a1f46380154a237f2045a"
+          })
+        )
+        .then(({ data }) => {
+          if (data.message == "成功") {
+            this.isEdit = true; //
+            this.$message({
+              message: "保存成功",
+              type: "success"
             });
-        }
-      });
+          }
+        });
     },
-    setEdit(){
+    setEdit() {
       this.isEdit = false;
     }
   }
@@ -215,25 +242,25 @@ export default {
     background-color: #f6f6f8;
     text-align: center;
     padding-top: 4%;
-     button {
-        cursor: pointer;
-        width:10%;
-        height: 50px;
-        border: none;
-        border-radius: 5px;
-        display: inline-block;
-        vertical-align: top;
-        color: #fff;
-        font-size: 24px;
+    button {
+      cursor: pointer;
+      width: 10%;
+      height: 50px;
+      border: none;
+      border-radius: 5px;
+      display: inline-block;
+      vertical-align: top;
+      color: #fff;
+      font-size: 24px;
       background: linear-gradient(
         to right,
         rgb(40, 217, 206),
         rgb(51, 110, 206)
       );
-      }
-      button:nth-child(1){
-        margin-right: 50px;
-      }
+    }
+    button:nth-child(1) {
+      margin-right: 50px;
+    }
   }
   .user-info {
     text-align: right;
@@ -265,25 +292,25 @@ export default {
       text-align: left;
       padding-left: 100px;
       padding-right: 15%;
-      label{
+      label {
         font-size: 24px;
         color: #626262;
         padding-right: 50px;
       }
-      span{
-         font-size: 18px;
+      span {
+        font-size: 18px;
         color: #a9aaaa;
       }
-      .upload-q span{
+      .upload-q span {
         color: #fff;
         font-size: 16px;
       }
-      .avatar-uploader{
+      .avatar-uploader {
         margin-top: 43px;
         margin-bottom: 80px;
       }
-      .upload-qua{
-         margin-top: 43px;
+      .upload-qua {
+        margin-top: 43px;
       }
     }
   }

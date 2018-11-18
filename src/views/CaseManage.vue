@@ -36,7 +36,7 @@
             <li class="first" v-text="item.bailorName"></li>
             <li class="second" v-text="item.reasonName"></li>
             <li class="third" v-text="item.courtName"></li>
-            <li class="fouth" ><span v-text="item.orderState">签约</span></li>
+            <li class="fouth" ><span v-for="(state,index) in caseState" v-if="index<item.orderState" v-text="state"></span></li>
             <li class="fifth" v-text="item.createTime">2018-10-22</li>
           </ul>        
           <el-pagination
@@ -100,11 +100,13 @@ export default {
       searchValue: "",
       dialogVisible: false,
       caseList: [],
-      chartInfo: {}
+      chartInfo: {},
+      caseState:["收案","起诉","庭审","结案"]
     };
   },
   mounted() {
     let baseUrl = this.GLOBAL.baseUrl;
+    let userID = this.common.getCookie("userID");
     this.$http
       .post(
         baseUrl + "/order/FindOrderList",
@@ -127,7 +129,7 @@ export default {
     this.$http
       .get(baseUrl + "/findLawyerInfoByRegisterId", {
         params: {
-          registerId: "U1525405578581qbBSE"
+          registerId: userID
         }
       })
       .then(({ data }) => {

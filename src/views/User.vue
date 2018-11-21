@@ -195,6 +195,8 @@ export default {
     },
     editUserInfo() {
       let baseUrl = this.GLOBAL.baseUrl;
+      let userID = this.common.getCookie("userID");
+      let token = this.common.getCookie("token");
       this.$http
         .post(
           baseUrl + "/order/FindOrderList",
@@ -211,8 +213,8 @@ export default {
             sex: this.userInfo.sex,
             lawyerOid: this.userInfo.lawyerOid,
             education: this.userInfo.education,
-            userId: "U1525405578581qbBSE",
-            token: "cfa53bd07ab509a7f70a1f46380154a237f2045a"
+            userId: userID,
+            token: token
           })
         )
         .then(({ data }) => {

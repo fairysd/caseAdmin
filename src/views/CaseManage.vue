@@ -62,29 +62,29 @@
       :visible.sync="dialogVisible"
       class="new-case">
       <el-row class="new-form">
-        <el-col :span="8"><label for="">委托人：</label><input type="text"><span>*</span></el-col>
-        <el-col :span="8"><label for="">联系方式：</label><input type="text"><span>*</span></el-col>
-        <el-col :span="8"><label for="">案由：</label><input type="text"><span>*</span></el-col>
+        <el-col :span="8"><label for="">委托人：</label><input type="text" v-model="newCase.userName"><span>*</span></el-col>
+        <el-col :span="8"><label for="">联系方式：</label><input type="text" v-model="newCase.userTel"><span>*</span></el-col>
+        <el-col :span="8"><label for="">案由：</label><input type="text" v-model="newCase.reasonName"><span>*</span></el-col>
         </el-row>
         <el-row class="new-form">
-        <el-col :span="8"><label for="">受理法院：</label><input type="text"><span>*</span></el-col>
-        <el-col :span="8"><label for="">案件类型：</label><input type="text"><span>*</span></el-col>
-        <el-col :span="8"><label for="">诉讼地位：</label><input type="text"><span>*</span></el-col>
+        <el-col :span="8"><label for="">受理法院：</label><input type="text" v-model="newCase.courtName"><span>*</span></el-col>
+        <el-col :span="8"><label for="">案件类型：</label><input type="text" v-model="newCase.caseType"><span>*</span></el-col>
+        <el-col :span="8"><label for="">诉讼地位：</label><input type="text" v-model="newCase.bailorType"><span>*</span></el-col>
       </el-row>
        <el-row class="new-form from3">
-        <el-col :span="24"><label for="">相对方：</label><input type="text"><input type="text"><input type="text"><button>添加</button><div class="divider"></div></el-col>
+        <el-col :span="24"><label for="">相对方：</label><input type="text" v-model="newCase.counterParty"><input type="text" ><input type="text" ><button>添加</button><div class="divider"></div></el-col>
       </el-row>
        <el-row class="new-form from4">
-        <el-col :span="8"><label for="">承办方：</label><input type="text"><span></span></el-col>
-        <el-col :span="8"><label for="">书记员：</label><input type="text"><span></span></el-col>
-        <el-col :span="8"><label for="">对方代理 ：</label><input type="text"><span></span></el-col>
+        <el-col :span="8"><label for="">承办方：</label><input type="text" v-model="newCase.agent"><span></span></el-col>
+        <el-col :span="8"><label for="">书记员：</label><input type="text" v-model="newCase.courtClerk"><span></span></el-col>
+        <el-col :span="8"><label for="">对方代理 ：</label><input type="text" v-model="newCase.counterPartyLawyer"><span></span></el-col>
       </el-row>
        <el-row class="new-form from5">
-        <el-col :span="8"><label for="">律师费：</label><input type="text"><span></span></el-col>
-        <el-col :span="8"><label for="">标的：</label><input type="text"><span></span></el-col>
+        <el-col :span="8"><label for="">律师费：</label><input type="text" v-model="newCase.serviceCharge"><span></span></el-col>
+        <el-col :span="8"><label for="">标的：</label><input type="text" v-model="newCase.orderPrice"><span></span></el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="createCase">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -101,7 +101,8 @@ export default {
       dialogVisible: false,
       caseList: [],
       chartInfo: {},
-      caseState:["收案","起诉","庭审","结案"]
+      caseState: ["收案", "起诉", "庭审", "结案"],
+      newCase: {}
     };
   },
   mounted() {
@@ -157,95 +158,133 @@ export default {
       })
       .then(() => {
         let pieChart = this.$echarts.init(document.getElementById("casePie"));
-    let option_pie = {
-      tooltip: {
-        trigger: "item",
-        formatter: "{a} <br/>{b}: {c} ({d}%)"
-      },
-      legend: {
-        orient: "vertical",
-        x: "left",
-        data:this.chartInfo.lawyerAbility[0]
-      },
-      series: [
-        {
-          name: "访问来源",
-          type: "pie",
-          selectedMode: "single",
-          radius: [0, "30%"],
-
-          label: {
-            normal: {
-              position: "inner"
-            }
+        let option_pie = {
+          tooltip: {
+            trigger: "item",
+            formatter: "{a} <br/>{b}: {c} ({d}%)"
           },
-          labelLine: {
-            normal: {
-              show: false
-            }
-          }
-        },
-        {
-          name: "访问来源",
-          type: "pie",
-          radius: ["40%", "55%"],
-          label: {
-            normal: {
-              show:false,
-              formatter: "{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ",
-              backgroundColor: "#eee",
-              borderColor: "#aaa",
-              borderWidth: 1,
-              borderRadius: 4,
-              // shadowBlur:3,
-              // shadowOffsetX: 2,
-              // shadowOffsetY: 2,
-              // shadowColor: '#999',
-              // padding: [0, 7],
-              rich: {
-                a: {
-                  color: "#999",
-                  lineHeight: 22,
-                  align: "center"
-                },
-                // abg: {
-                //     backgroundColor: '#333',
-                //     width: '100%',
-                //     align: 'right',
-                //     height: 22,
-                //     borderRadius: [4, 4, 0, 0]
-                // },
-                hr: {
-                  borderColor: "#aaa",
-                  width: "100%",
-                  borderWidth: 0.5,
-                  height: 0
-                },
-                b: {
-                  fontSize: 16,
-                  lineHeight: 33
-                },
-                per: {
-                  color: "#eee",
-                  backgroundColor: "#334455",
-                  padding: [2, 4],
-                  borderRadius: 2
+          legend: {
+            orient: "vertical",
+            x: "left",
+            data: this.chartInfo.lawyerAbility[0]
+          },
+          series: [
+            {
+              name: "访问来源",
+              type: "pie",
+              selectedMode: "single",
+              radius: [0, "30%"],
+
+              label: {
+                normal: {
+                  position: "inner"
+                }
+              },
+              labelLine: {
+                normal: {
+                  show: false
                 }
               }
+            },
+            {
+              name: "访问来源",
+              type: "pie",
+              radius: ["40%", "55%"],
+              label: {
+                normal: {
+                  show: false,
+                  formatter:
+                    "{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ",
+                  backgroundColor: "#eee",
+                  borderColor: "#aaa",
+                  borderWidth: 1,
+                  borderRadius: 4,
+                  // shadowBlur:3,
+                  // shadowOffsetX: 2,
+                  // shadowOffsetY: 2,
+                  // shadowColor: '#999',
+                  // padding: [0, 7],
+                  rich: {
+                    a: {
+                      color: "#999",
+                      lineHeight: 22,
+                      align: "center"
+                    },
+                    // abg: {
+                    //     backgroundColor: '#333',
+                    //     width: '100%',
+                    //     align: 'right',
+                    //     height: 22,
+                    //     borderRadius: [4, 4, 0, 0]
+                    // },
+                    hr: {
+                      borderColor: "#aaa",
+                      width: "100%",
+                      borderWidth: 0.5,
+                      height: 0
+                    },
+                    b: {
+                      fontSize: 16,
+                      lineHeight: 33
+                    },
+                    per: {
+                      color: "#eee",
+                      backgroundColor: "#334455",
+                      padding: [2, 4],
+                      borderRadius: 2
+                    }
+                  }
+                }
+              },
+              data: this.chartInfo.lawyerAbility[2]
             }
-          },
-          data: this.chartInfo.lawyerAbility[2]
-        }
-      ]
-    };
-    pieChart.setOption(option_pie);
+          ]
+        };
+        pieChart.setOption(option_pie);
       });
     //
 
     //
-   
   },
-  methods: {}
+  methods: {
+    createCase() {
+      let baseUrl = this.GLOBAL.baseUrl;
+      this.$http
+        .post(
+          baseUrl + "/order/SubmitOrder",
+          this.qs.stringify({
+            page: 0,
+            orderState: 1,
+            userName: this.newCase.userName,
+            reasonName: this.newCase.reasonName,
+            courtName: this.newCase.courtName,
+            counterParty: this.newCase.counterParty,
+            caseType: this.newCase.caseType,
+            bailorType: this.newCase.bailorType,
+            userTel: this.newCase.userTel,
+            agent: this.newCase.agent,
+            courtClerk: this.newCase.courtClerk,
+            counterPartyLawyer: this.newCase.counterPartyLawyer,
+            serviceCharge: this.newCase.serviceCharge,
+            orderPrice: this.newCase.orderPrice
+          })
+        )
+        .then(({ data }) => {
+          if (data.message == "成功") {
+            this.$message({
+              message: "保存成功",
+              type: "success"
+            });
+            dialogVisible = false;
+          }else{
+            this.$message({
+              message: "保存失败",
+              type: "error"
+            });
+          }
+        });
+    }
+  }
 };
 </script>
 <style lang="less">

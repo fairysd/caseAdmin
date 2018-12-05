@@ -28,6 +28,11 @@ export default new Router({
           component:CaseManage
         },
         {
+          path:'caseProcess',
+          name:'caseProcess',
+          component:()=> import(/* webpackChunkName: "caseProcess" */ './views/CaseProcess.vue')
+        },
+        {
           path:'office',
           name:'office',
           component:()=> import(/* webpackChunkName: "office" */ './views/Office.vue')
@@ -45,7 +50,7 @@ export default new Router({
         {
           path:'user',
           name:'user',
-          component:()=> import(/* webpackChunkName: "book" */ './views/User.vue')
+          component:()=> import(/* webpackChunkName: "user" */ './views/User.vue')
         }
       ]
     },

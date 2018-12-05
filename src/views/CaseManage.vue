@@ -108,14 +108,15 @@ export default {
   mounted() {
     let baseUrl = this.GLOBAL.baseUrl;
     let userID = this.common.getCookie("userID");
+    let token = this.common.getCookie("token");
     this.$http
       .post(
         baseUrl + "/order/FindOrderList",
         this.qs.stringify({
           orderState: 0,
-          token: "df300d22e5318d076b29144f7193278ce0ef5b76",
-          userId: "U1525405578581qbBSE",
-          lawyerId: "U1525405578581qbBSE",
+          token: token,
+          userId: userID,
+          lawyerId: userID,
           page: 0,
           searchMode: "union"
         })

@@ -32,7 +32,7 @@
     </el-row>
      <el-row  class="content-body">
       <el-col :span="20" :offset="2">
-          <ul v-for="item in caseList" :key="item.id" class="content-body">
+          <ul v-for="item in caseList" :key="item.id" class="content-body" @click="getDetail(item.id)"> 
             <li class="first" v-text="item.bailorName"></li>
             <li class="second" v-text="item.reasonName"></li>
             <li class="third" v-text="item.courtName"></li>
@@ -284,6 +284,10 @@ export default {
             });
           }
         });
+    },
+    getDetail(id){
+      console.log(id)
+      this.$router.push({ name: "caseProcess",params:{id:id}});
     }
   }
 };

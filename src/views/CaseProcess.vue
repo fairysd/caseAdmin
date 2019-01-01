@@ -110,29 +110,31 @@ export default {
       chartInfo: {},
       caseState: ["收案", "起诉", "庭审", "结案"],
       newCase: {},
-      checked:true
+      checked:true,
+      id:""
     };
   },
   mounted() {
     let baseUrl = this.GLOBAL.baseUrl;
     let userID = this.common.getCookie("userID");
+    let token = this.common.getCookie("token");
+    let id = this.$route.params.id;
+    this.id = id;
     this.$http
       .post(
-        baseUrl + "/order/FindOrderList",
-        this.qs.stringify({
-          orderState: 0,
+        baseUrl + "/order/CheckCaseProcess",
+        this.qs.stringify({          
           token: "df300d22e5318d076b29144f7193278ce0ef5b76",
           userId: "U1525405578581qbBSE",
-          lawyerId: "U1525405578581qbBSE",
-          page: 0,
-          searchMode: "union"
+          id: id,         
         })
       )
       .then(({ data }) => {
-        this.caseList = data.data;
-        this.caseList.forEach(function(value, index) {
-          value.createTime = value.createTime.split(" ")[0];
-        });
+       if(data.code == '0'){
+
+       }else{
+         this.$router.push({name:"caseManage"})
+       }
       });
     //
    

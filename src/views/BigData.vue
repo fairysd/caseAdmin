@@ -43,7 +43,8 @@
 </template>
 <script>
 // @ is an alias to /src
-
+//for test rebase
+//aiaiaiaiaiaiaiaiaiaiai git 
 export default {
   name: "bigData",
   components: {},
